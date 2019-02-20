@@ -82,34 +82,35 @@ func CreateNewUser(db *sql.DB, age int, email string, firstName string, lastName
 }
 
 //UpdateUser edits a single user
-func UpdateUser(db *sql.DB) {
+func UpdateUser(db *sql.DB, id int, firstName string, lastName string) (string, error) {
 	//Update user in table
 	sqlStatement := `
 	UPDATE users
 	SET first_name = $2, last_name = $3
 	WHERE id = $1;`
-	res, err := db.Exec(sqlStatement, 5, "NewFIrst", "NewLast")
+	res, err := db.Exec(sqlStatement, id, firstName, lastName)
 	if err != nil {
-		panic(err)
+		return "Could not update table", err
 	}
 	count, err := res.RowsAffected()
 	if err != nil {
-		panic(err)
+		return "Could not update table2", err
 	}
 	fmt.Println(count)
+	return "Table updated successfully", err
 
 }
 
 //DeleteUser deletes a user from table
-func DeleteUser(db *sql.DB, id int) string {
+func DeleteUser(db *sql.DB, id int) (string, error) {
 	//Delete user in table
 	sqlStatement := `
-	DELETE users
+	DELETE FROM users
 	WHERE id=$1;`
 	_, err := db.Exec(sqlStatement, id)
 	if err != nil {
-		return "User cannot be deleted, invalid id."
+		return "User cannot be deleted, big error", err
 	}
 
-	return "User with id deleted"
+	return "User deleted.", err
 }

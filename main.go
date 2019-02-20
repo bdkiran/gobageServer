@@ -80,11 +80,48 @@ func createNewUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func deleteUser(w http.ResponseWriter, r *http.Request) {
-
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		fmt.Println("Invalid user id")
+		return
+	}
+	fmt.Println("id to delete is: ", id)
+	message, err := DeleteUser(db, id)
+	if err != nil {
+		panic(err)
+	}
+	response, _ := json.Marshal(message)
+	w.Header().Set("Content-type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(response)
 }
 
 func updateUser(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Update user called.")
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		fmt.Println("Invalid user id")
+		return
+	}
+	var p person
+	decoder := json.NewDecoder(r.Body)
+	err = decoder.Decode(&p)
+	if err != nil {
+		fmt.Println("Invalid PUT request")
+		return
+	}
+	message, err := UpdateUser(db, id, p.FirstName, p.LastName)
+	if err != nil {
+		panic(err)
+		return
+	}
+	response, _ := json.Marshal(message)
+	w.Header().Set("Content-type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(response)
+
 }
 
 func main() {
@@ -109,6 +146,8 @@ func main() {
 	r.HandleFunc("/users", getUsers).Methods("GET")
 	r.HandleFunc("/user/{id:[0-9]+}", getUser).Methods("GET")
 	r.HandleFunc("/user", createNewUser).Methods("POST")
+	r.HandleFunc("/user/{id:[0-9]+}", deleteUser).Methods("DELETE")
+	r.HandleFunc("/user/{id:[0-9]+}", updateUser).Methods("PUT")
 
 	log.Fatal(http.ListenAndServe("localhost:8000", r))
 
