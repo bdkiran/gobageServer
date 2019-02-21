@@ -13,4 +13,4 @@ TABLE users (
   email TEXT UNIQUE NOT NULL
 )
 
-Please create a tablebase with same structure or make nessecery changes to match your table.
+Please create a table with same structure or make nessecery changes to match your table.
